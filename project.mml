@@ -511,6 +511,7 @@ Layer:
               WHERE (tunnel IN ('yes', 'building_passage', 'avalanche_protector') OR covered = 'yes')
                 AND (railway NOT IN ('platform') AND railway IS NOT NULL) -- end of rail select
             ) AS features
+          WHERE substring(feature for 8) != 'railway_'
           ORDER BY
             layernotnull,
             z_order,
@@ -848,6 +849,46 @@ Layer:
       cache-features: true
       minzoom: 6
       maxzoom: 9
+  - id: tunnels
+    geometry: linestring
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      # Underground railways are rendered after roads so they stay readable
+      # where they cross the road network.
+      table: |-
+        (SELECT
+            way,
+            'railway_' || (CASE
+                             -- spur/siding/yard tracks get a feature per railway class, e.g. INT-light_rail-service
+                             WHEN (railway IN ('rail', 'tram', 'light_rail', 'subway', 'funicular', 'narrow_gauge', 'monorail')
+                                   AND service IN ('spur', 'siding', 'yard')) THEN 'INT-' || railway || '-service'
+                             ELSE railway END) AS feature,
+            NULL AS tracktype,
+            NULL AS int_surface,
+            NULL AS int_access,
+            construction,
+            NULL AS service,
+            NULL AS link,
+            CASE
+              WHEN tags->'railway:preserved' = 'yes' THEN 'yes'
+              ELSE 'no'
+            END AS preserved,
+            COALESCE(layer,0) AS layernotnull
+          FROM planet_osm_line
+          WHERE (tunnel IN ('yes', 'building_passage', 'avalanche_protector') OR covered = 'yes')
+            AND (railway NOT IN ('platform') AND railway IS NOT NULL)
+          ORDER BY
+            layernotnull,
+            z_order,
+            CASE WHEN feature IN ('railway_INT-rail-service', 'railway_INT-tram-service', 'railway_INT-light_rail-service', 'railway_INT-subway-service',
+                                  'railway_INT-funicular-service', 'railway_INT-narrow_gauge-service', 'railway_INT-monorail-service') THEN 0 ELSE 1 END,
+            osm_id
+        ) AS railway_tunnels
+    properties:
+      cache-features: true
+      group-by: layernotnull
+      minzoom: 10
   - id: bridges
     geometry: linestring
     <<: *extents

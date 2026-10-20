@@ -886,7 +886,7 @@
       }
     }
 
-    [feature = 'railway_disused'][zoom >= 15],
+    [feature = 'railway_disused'][zoom >= 11],
     [feature = 'railway_construction'][construction != 'subway'],
     [feature = 'railway_miniature'][zoom >= 15] {
       #bridges {
@@ -1083,7 +1083,7 @@
       }
     }
 
-    [feature = 'railway_disused'][zoom >= 15],
+    [feature = 'railway_disused'][zoom >= 11],
     [feature = 'railway_construction'][construction != 'subway'],
     [feature = 'railway_miniature'][zoom >= 15] {
       #bridges {
@@ -2851,11 +2851,14 @@ tertiary is rendered from z10 and is not included in osm_planet_roads. */
     }
 
     [feature = 'railway_construction'] {
-      [zoom >= 13] {
+      [zoom >= 11] {
         line-color: grey;
-        line-width: 2;
+        line-width: 1;
         line-dasharray: 2,4;
         line-join: round;
+        [zoom >= 13] {
+          line-width: 2;
+        }
         [zoom >= 14] {
           line-dasharray: 2,3;
         }
@@ -2867,11 +2870,14 @@ tertiary is rendered from z10 and is not included in osm_planet_roads. */
     }
 
     [feature = 'railway_disused'] {
-      [zoom >= 15] {
+      [zoom >= 11] {
         line-color: #aaa;
-        line-width: 2;
+        line-width: 1;
         line-dasharray: 2,4;
         line-join: round;
+        [zoom >= 15] {
+          line-width: 2;
+        }
       }
     }
 
@@ -4420,8 +4426,27 @@ tertiary is rendered from z10 and is not included in osm_planet_roads. */
   Other minor railway styles. For service rails, see:
   https://github.com/openstreetmap-carto/openstreetmap-carto/pull/2687
   */
+  [railway = 'disused'] {
+    [zoom >= 11] {
+      text-name: "[name]";
+      text-fill: #666666;
+      text-size: 10;
+      text-dy: 6;
+      text-spacing: 900;
+      text-clip: false;
+      text-placement: line;
+      text-face-name: @book-fonts;
+      text-halo-radius: @standard-halo-radius;
+      text-halo-fill: @standard-halo-fill;
+      text-repeat-distance: @railway-text-repeat-distance;
+    }
+    [zoom >= 19] {
+      text-size: 11;
+      text-dy: 7;
+    }
+  }
+
   [railway = 'miniature'],
-  [railway = 'disused'],
   [railway = 'construction'] {
     [zoom >= 17] {
       text-name: "[name]";

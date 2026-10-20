@@ -1396,60 +1396,6 @@ Layer:
     properties:
       cache-features: true
       minzoom: 12
-  - id: stations
-    geometry: point
-    <<: *extents
-    Datasource:
-      <<: *osm2pgsql
-      table: |-
-        (SELECT
-            way,
-            name,
-            ref,
-            railway,
-            aerialway,
-            station
-          FROM
-          (SELECT
-              ST_PointOnSurface(way) AS way,
-              name,
-              ref,
-              railway,
-              aerialway,
-              tags->'station' AS station,
-              way_area,
-              osm_id
-            FROM planet_osm_polygon
-            WHERE way && !bbox! -- Not ST_PointOnSurface(way) because name might be NULL
-              AND way_area < 768000*POW(!scale_denominator!*0.001*0.28,2)
-          UNION ALL
-          SELECT
-              way,
-              name,
-              ref,
-              railway,
-              aerialway,
-              tags->'station' AS station,
-              NULL::real AS way_area,
-              osm_id
-            FROM planet_osm_point
-            WHERE way && !bbox!
-            ) _
-          WHERE railway IN ('station', 'halt', 'tram_stop')
-            OR railway = 'subway_entrance' AND way_area IS NULL
-            OR aerialway = 'station'
-          ORDER BY
-            CASE railway
-              WHEN 'station' THEN 1
-              WHEN 'subway_entrance' THEN 3
-              ELSE 2
-            END,
-            way_area DESC NULLS LAST,
-            osm_id
-        ) AS stations
-    properties:
-      cache-features: true
-      minzoom: 12
   - id: junctions
     geometry: point
     <<: *extents
@@ -2072,6 +2018,60 @@ Layer:
     properties:
       cache-features: true
       minzoom: 15
+  - id: stations
+    geometry: point
+    <<: *extents
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+            way,
+            name,
+            ref,
+            railway,
+            aerialway,
+            station
+          FROM
+          (SELECT
+              ST_PointOnSurface(way) AS way,
+              name,
+              ref,
+              COALESCE(tags->'disused:railway', railway) AS railway,
+              aerialway,
+              tags->'station' AS station,
+              way_area,
+              osm_id
+            FROM planet_osm_polygon
+            WHERE way && !bbox! -- Not ST_PointOnSurface(way) because name might be NULL
+              AND way_area < 768000*POW(!scale_denominator!*0.001*0.28,2)
+          UNION ALL
+          SELECT
+              way,
+              name,
+              ref,
+              COALESCE(tags->'disused:railway', railway) AS railway,
+              aerialway,
+              tags->'station' AS station,
+              NULL::real AS way_area,
+              osm_id
+            FROM planet_osm_point
+            WHERE way && !bbox!
+            ) _
+          WHERE railway IN ('station', 'halt', 'tram_stop')
+            OR railway = 'subway_entrance' AND way_area IS NULL
+            OR aerialway = 'station'
+          ORDER BY
+            CASE railway
+              WHEN 'station' THEN 1
+              WHEN 'subway_entrance' THEN 3
+              ELSE 2
+            END,
+            way_area DESC NULLS LAST,
+            osm_id
+        ) AS stations
+    properties:
+      cache-features: true
+      minzoom: 11
   - id: railways-text-name
     geometry: linestring
     <<: *extents

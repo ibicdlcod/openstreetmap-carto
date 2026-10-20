@@ -18,19 +18,55 @@
     }
   }
 
-  [railway = 'station'][zoom >= 12] {
-    marker-file: url('symbols/square.svg');
-    marker-fill: @station-color;
-    marker-clip: false;
-    [station != 'subway'] {
+  [railway = 'station'][zoom >= 11] {
+    [station != 'subway'][station != 'light_rail'][station != 'monorail'] {
+      marker-file: url('symbols/square.svg');
+      marker-fill: @station-color;
+      marker-clip: false;
       marker-width: 4;
+      [zoom >= 13] {
+        marker-width: 6;
+      }
+      [zoom >= 15] {
+        marker-width: 9;
+      }
+      text-name: "[name]";
+      text-face-name: @bold-fonts;
+      text-size: 9;
+      text-fill: @station-text;
+      text-dy: 9;
+      text-halo-radius: @standard-halo-radius * 1.5;
+      text-halo-fill: @standard-halo-fill;
+      text-wrap-width: 27; // 3 em
+      text-line-spacing: -1.35; // -0.15 em
+      [zoom >= 14] {
+        text-size: 10;
+        text-wrap-width: 30; // 3 em
+        text-line-spacing: -1.5; // -0.15 em
+      }
+      [zoom >= 15] {
+        text-size: 11;
+        text-wrap-width: 33; // 3 em
+        text-line-spacing: -1.65; // -0.15 em
+        text-dy: 10;
+      }
     }
-    [zoom >= 13][station != 'subway'],
-    [zoom >= 14][station = 'subway'] {
-      marker-width: 6;
-    }
-    [zoom >= 14][station !='subway'],
-    [zoom >=15] {
+  }
+
+  [railway = 'station'][zoom >= 13] {
+    [station = 'subway'],
+    [station = 'light_rail'],
+    [station = 'monorail'] {
+      marker-file: url('symbols/square.svg');
+      marker-fill: @station-color;
+      marker-clip: false;
+      marker-width: 4;
+      [zoom >= 14] {
+        marker-width: 6;
+      }
+      [zoom >= 16] {
+        marker-width: 9;
+      }
       text-name: "[name]";
       text-face-name: @bold-fonts;
       text-size: 10;
@@ -40,19 +76,17 @@
       text-halo-fill: @standard-halo-fill;
       text-wrap-width: 30; // 3 em
       text-line-spacing: -1.5; // -0.15 em
-    }
-    [zoom >= 15][station != 'subway'],
-    [zoom >= 16] {
-      marker-width: 9;
-      text-size: 11;
-      text-wrap-width: 33; // 3 em
-      text-line-spacing: -1.65; // -0.15 em
-      text-dy: 10;
+      [zoom >= 16] {
+        text-size: 11;
+        text-wrap-width: 33; // 3 em
+        text-line-spacing: -1.65; // -0.15 em
+        text-dy: 10;
+      }
     }
   }
 
   [railway = 'halt'] {
-    [zoom >= 13] {
+    [zoom >= 11] {
       marker-file: url('symbols/square.svg');
       marker-fill: @station-color;
       marker-width: 4;
@@ -61,7 +95,7 @@
         marker-width: 6;
       }
     }
-    [zoom >= 15] {
+    [zoom >= 11] {
       text-name: "[name]";
       text-face-name: @bold-fonts;
       text-size: @standard-font-size;
